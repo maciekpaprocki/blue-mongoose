@@ -35,7 +35,7 @@
             outline: none;
         }
 
-        h1, h2, h3, h4, h5, label, p {
+        h1, h2, h3, h4, h5, label, p, ul {
             padding: 0;
             margin: 0;
             display: block;
@@ -98,9 +98,21 @@
 <body>
 <h1 class="p mb upper">Green Weasel Test*</h1>
 <div class="p">
-    *I know you are not called green weasel, just didn't want to burn the test by indexing it in google :) <br>
-    Also, I am making assumption that two robots can be at this same position, otherwise i would have to add some pile
-    up<br>
+    <p class="mb">
+        *I know you are not called green weasel, just didn't want to burn the test by indexing it in google :)
+    </p>
+    <p>
+        Also, I am making some assumptions:
+    </p>
+    <ul class="p">
+        <li>
+            Two robots can share this same position
+        </li>
+        <li>
+            Program is ignoring a lot of invalid inputs, but it's throwing problem when some crucial data is missing
+        </li>
+    </ul>
+
 </div>
 <div class="cf mb">
     <div class="p w-1/2 float-left">
@@ -150,10 +162,12 @@
          * @param {string} orientation
          * @param {int} x
          * @param {int} y
+         * @returns {Robot}
          */
         createNewRobot (orientation, x, y) {
             const robot = new Robot(orientation)
             this.addRobot(robot, x, y)
+            return robot
         }
     }
 
@@ -170,9 +184,13 @@
             this.y = y
             this.map = map
         }
+
+        applyCommands (commands) {
+
+        }
     }
 
-    function parseCoordinates (coordinates) {
+    function extractCoordinates (coordinates) {
         let split = coordinates.split(' ')
 
         if (split.length < 2) {
@@ -189,7 +207,7 @@
             throw new Error(`Coordinates must be larger than 0. I know, our map is weird. Got "${coordinates}".`)
         }
 
-        return [x, y]
+        return [x, y, ...split]
     }
 
     /**
@@ -197,12 +215,30 @@
      * @returns {string}
      */
     function main (inputText) {
-        const lines = inputText.trim().split(/\r?\n/)
+        const lines = inputText.trim().split(/\r?\n/).map(l => l.trim())
         const mapSize = lines.shift()
-        const [width, height] = parseCoordinates(mapSize)
+        const [width, height] = extractCoordinates(mapSize)
         const map = new Map(width, height)
-        console.log(map)
-        return inputText
+        let output = ''
+
+        while (lines.length > 0) {
+            const startInstructions = lines.shift()?.trim()
+            if (startInstructions === '') {
+                // ignores empty lines
+                continue
+            }
+
+            const [x, y, direction] = extractCoordinates(startInstructions)
+
+            if (!['N', 'E', 'S', 'W'].includes(direction)) {
+                throw new Error(`Invalid direction "${direction}"`)
+            }
+
+            const robot = map.createNewRobot(direction, x, y)
+            robot.applyCommands(lines.shift())
+            output += `${robot.x} ${robot.y} ${robot.orientation}${robot.scented ? ' LOST' : ''}\n`
+        }
+        return output
     }
 
     // this stuff is just to run tests for easier development
