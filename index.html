@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title></title>
+    <title>Test</title>
     <meta name="description" content="">
 
     <style>
@@ -22,6 +22,8 @@
             color: var(--primary);
             margin: 0;
             padding: 0;
+            font-size: 1rem;
+            line-height: 1.25rem;
         }
 
         textarea {
@@ -76,8 +78,9 @@
             border: 1px solid var(--primary);
         }
 
-        .border-red {
+        .red {
             border: 1px solid var(--danger);
+            color: var(--danger);
         }
 
         .w-1\/2 {
@@ -97,6 +100,37 @@
             display: table;
             clear: both;
         }
+
+        .blinker {
+            opacity: 1;
+
+
+            display: inline-block;
+            margin-left: 11px;
+            width: 7px;
+
+            animation: blinker 0.9s steps(2, start) infinite;
+            position: relative;
+
+        }
+
+        .blinker:after {
+            content: " ";
+            display: inline-block;
+            border-left: 7px solid currentColor;
+            height: 12px;
+            position: absolute;
+            bottom: -2px;
+
+
+        }
+
+        @keyframes blinker {
+            to {
+                visibility: hidden;
+            }
+        }
+
 
     </style>
 </head>
@@ -127,9 +161,9 @@
     </div>
     <div class="p w-1/2 float-left">
         <label for="output" class="mb block">Output</label>
-        <pre id="output" class="border p">
-
-        </pre>
+        <div id="output" class="border p">
+            <span class="blinker"></span>
+        </div>
     </div>
 </div>
 <div id="tests" class="cf mb">
@@ -252,9 +286,11 @@
         }
 
         /**
+         * Breaks when receives first false
          * @param {string|string[]} commands
          */
         applyCommands (commands) {
+            console.log(commands)
             commands = Array.isArray(commands) ? commands : commands.split('')
             while (commands.length > 0) {
                 const command = commands.shift()
@@ -322,24 +358,67 @@
             }
 
             const robot = map.createNewRobot(direction, x, y)
-            robot.applyCommands(lines.shift())
+            const commands = lines.shift()
+
+            if (commands === undefined) {
+                continue
+            }
+
+            robot.applyCommands(commands)
+
             output += `${robot.x} ${robot.y} ${robot.orientation}${robot.scented ? ' LOST' : ''}\n`
         }
         return output
     }
 
+    let uId = 0
+
     input.addEventListener('input', function () {
-        output.classList.remove('border-red')
+        output.classList.remove('red')
         try {
-            output.innerHTML = main(input.value)
+            typeAnimation(output, main(input.value).replace(/\n/g, '<br>'))
+
         } catch (e) {
-            output.classList.add('border-red')
-            output.innerHTML = e.message
+            output.classList.add('red')
+            typeAnimation(output, e.message)
         }
     })
 
+    // visual additions as i have some time
+    function textAreaAdjust (element) {
+        element.style.minHeight = '1px'
+        element.style.minHeight = (2 + element.scrollHeight) + 'px'
+    }
+
+    input.addEventListener('input', function () {
+        textAreaAdjust(input)
+    })
+
+    // typing animation shamefully stolen from https://codepen.io/tjezidzic/pen/LLWoLw
+    function typeAnimation (element, fullText) {
+
+        // type code
+        let i = 0, isTag, text
+        const selfId = uId++
+        element.currentTypingAnimId = selfId
+
+        function type () {
+            if (element.currentTypingAnimId !== selfId) return
+            text = fullText.slice(0, ++i)
+            if (text === fullText) return
+            element.innerHTML = text + `<span class='blinker'>&#32;</span>`
+            let char = text.slice(-1)
+            if (char === '<') isTag = true
+            if (char === '>') isTag = false
+            if (isTag) return type()
+            setTimeout(type, 60)
+        }
+
+        type()
+    }
+
     // this stuff is just to run tests for easier development
-    // it's really not gonna be pretty
+    // it's not meant to be pretty
 
     const TESTS = [
         {
@@ -389,13 +468,18 @@ LLFFFLFLFL`,
         }
 
         const valid = output.trim() === test.output.trim()
-        const borderClass = valid ? 'border' : 'border-red'
+        const dangerClass = valid ? '' : 'red'
 
         div.innerHTML = `<h3 class="px">Test ${i + 1}</h3>
-                <div class="p w-1/2 float-left"><pre class="${borderClass} p">${test.input}</pre></div>
-                <div class="p w-1/2 float-left"><pre class="${borderClass} p">${output}</pre></div>
+                <div class="p w-1/2 float-left"><div class="border ${dangerClass} p">${test.input.replace(/\n/g, '<br>')}</div></div>
+                <div class="p w-1/2 float-left"><div class="border ${dangerClass} p" id="test_${i}"><span class="blinker"></span></div></div>
         `
+
         tests.appendChild(div)
+
+        const testOutput = document.getElementById(`test_${i}`)
+        typeAnimation(testOutput, output.replace(/\n/g, '<br>'))
+
     })
 
 </script>
