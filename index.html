@@ -41,6 +41,19 @@
             display: block;
             font-weight: normal;
         }
+
+        textarea {
+            background: transparent;
+            display: block;
+            color: inherit;
+            width: 100%;
+        }
+
+
+        textarea:focus {
+            outline: none;
+        }
+
         /* I am basically doing tailwind bastardisation to not include tailwind. Sorry :) */
         .p {
             padding: 1rem;
@@ -54,10 +67,31 @@
             margin-bottom: 1rem;
         }
 
+        .border {
+            border: 1px solid var(--primary);
+        }
+
+
+        .w-1\/2 {
+            width: 50%;
+        }
+
+        .float-left {
+            float: left;
+        }
+
+        .mb {
+            margin-bottom: 1rem;
+        }
+
+        .cf::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
 
     </style>
 </head>
-
 <body>
 <h1 class="p mb upper">Green Weasel Test*</h1>
 <div class="p">
@@ -65,7 +99,42 @@
     Also, I am making assumption that two robots can be at this same position, otherwise i would have to add some pile
     up<br>
 </div>
+<div class="cf mb">
+    <div class="p w-1/2 float-left">
+        <label for="input" class="mb block">Input</label>
+        <textarea id="input" name="" rows="10" class="p border"></textarea>
+    </div>
+    <div class="p w-1/2 float-left">
+        <label for="output" class="mb block">Output</label>
+        <div id="output" class="border p">
 
+        </div>
+    </div>
+</div>
+<script>
+    const input = document.getElementById('input')
+    const output = document.getElementById('output')
+    input.addEventListener('input', function () {
+        output.innerHTML = input.value
+    })
+
+    class Map {
+        constructor (width, height) {
+            this.width = width
+            this.height = height
+            this.robots = []
+        }
+    }
+
+    class Robot {
+        constructor (x, y, orientation) {
+            this.x = x
+            this.y = y
+            this.orientation = orientation
+        }
+    }
+
+</script>
 </body>
 
 </html>
