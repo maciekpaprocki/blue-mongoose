@@ -59,6 +59,11 @@
             padding: 1rem;
         }
 
+        .px {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
         .upper {
             text-transform: uppercase;
         }
@@ -96,10 +101,11 @@
     </style>
 </head>
 <body>
-<h1 class="p mb upper">Green Weasel Test*</h1>
-<div class="p">
+<h1 class="p upper">Green Weasel Test*</h1>
+<div class="px">
     <p class="mb">
-        *I know you are not called green weasel, just didn't want to burn the test by indexing it in google :)
+        *I know you guys/girls are not called green weasel, just didn't want to burn the test by indexing it in google
+        :)
     </p>
     <p>
         Also, I am making some assumptions:
@@ -121,9 +127,9 @@
     </div>
     <div class="p w-1/2 float-left">
         <label for="output" class="mb block">Output</label>
-        <div id="output" class="border p">
+        <pre id="output" class="border p">
 
-        </div>
+        </pre>
     </div>
 </div>
 <div id="tests" class="cf mb">
@@ -134,9 +140,6 @@
     const output = document.getElementById('output')
     const tests = document.getElementById('tests')
     const DIRECTIONS = ['N', 'E', 'S', 'W']
-    input.addEventListener('input', function () {
-        output.innerHTML = input.value
-    })
 
     class Map {
         /**
@@ -187,6 +190,9 @@
             this.y = y
         }
 
+        /**
+         * @returns {boolean}
+         */
         turn (turns) {
             let index = DIRECTIONS.indexOf(this.orientation)
             index = (index + turns) % 4
@@ -194,18 +200,27 @@
                 index = 4 + index
             }
             this.orientation = DIRECTIONS[index]
+            return true
         }
 
+        /**
+         * @returns {boolean}
+         */
         left () {
-            this.turn(-1)
-            return true
+            return this.turn(-1)
+
         }
 
+        /**
+         * @returns {boolean}
+         */
         right () {
-            this.turn(1)
-            return true
+            return this.turn(1)
         }
 
+        /**
+         * @returns {boolean}
+         */
         forward () {
             let { x, y } = this
             switch (this.orientation) {
@@ -225,26 +240,38 @@
             if (this.map.onMap(x, y)) {
                 this.x = x
                 this.y = y
-                return false
+                return true
             }
-            this.scented = true;
+
+            if (this.map.robots.some(robot => robot.x === this.x && robot.y === this.y && robot.scented)) {
+                return true
+            }
+
+            this.scented = true
             return false
         }
 
+        /**
+         * @param {string|string[]} commands
+         */
         applyCommands (commands) {
-            commands = commands.split('')
+            commands = Array.isArray(commands) ? commands : commands.split('')
             while (commands.length > 0) {
                 const command = commands.shift()
+                let ret = true
                 switch (command) {
                     case 'F':
-                        this.forward()
+                        ret = this.forward()
                         break
                     case 'L':
-                        this.left()
+                        ret = this.left()
                         break
                     case 'R':
-                        this.right()
+                        ret = this.right()
                         break
+                }
+                if (!ret) {
+                    return
                 }
             }
         }
@@ -290,7 +317,7 @@
 
             const [x, y, direction] = extractCoordinates(startInstructions)
 
-            if (!['N', 'E', 'S', 'W'].includes(direction)) {
+            if (!DIRECTIONS.includes(direction)) {
                 throw new Error(`Invalid direction "${direction}"`)
             }
 
@@ -301,10 +328,34 @@
         return output
     }
 
+    input.addEventListener('input', function () {
+        output.classList.remove('border-red')
+        try {
+            output.innerHTML = main(input.value)
+        } catch (e) {
+            output.classList.add('border-red')
+            output.innerHTML = e.message
+        }
+    })
+
     // this stuff is just to run tests for easier development
     // it's really not gonna be pretty
 
     const TESTS = [
+        {
+            input: `5 3
+1 1 E
+RFRFRFRF
+
+3 2 N
+FRRFLLFFRRFLL
+
+0 3 W
+LLFFFLFLFL`,
+            output: `1 1 E
+3 3 N LOST
+2 3 S`
+        },
         {
             input: `5 3
 1 1 E
@@ -336,7 +387,7 @@ LLFFFLFLFL`,
         const valid = output.trim() === test.output.trim()
         const borderClass = valid ? 'border' : 'border-red'
 
-        div.innerHTML = `<h3 class="p">Test ${i + 1}</h3>
+        div.innerHTML = `<h3 class="px">Test ${i + 1}</h3>
                 <div class="p w-1/2 float-left"><pre class="${borderClass} p">${test.input}</pre></div>
                 <div class="p w-1/2 float-left"><pre class="${borderClass} p">${output}</pre></div>
         `
