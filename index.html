@@ -133,6 +133,7 @@
     const input = document.getElementById('input')
     const output = document.getElementById('output')
     const tests = document.getElementById('tests')
+    const DIRECTIONS = ['N', 'E', 'S', 'W']
     input.addEventListener('input', function () {
         output.innerHTML = input.value
     })
@@ -149,13 +150,12 @@
         }
 
         /**
-         * @param {Robot} robot
          * @param {int} x
          * @param {int} y
+         * @returns {boolean}
          */
-        addRobot (robot, x, y) {
-            this.robots.push(robot)
-            robot.setPosition(x, y)
+        onMap (x, y) {
+            return x >= 0 && x <= this.width && y >= 0 && y <= this.height
         }
 
         /**
@@ -165,28 +165,88 @@
          * @returns {Robot}
          */
         createNewRobot (orientation, x, y) {
-            const robot = new Robot(orientation)
-            this.addRobot(robot, x, y)
+            const robot = new Robot(orientation, x, y, this)
+            this.robots.push(robot)
             return robot
         }
     }
 
     class Robot {
-        constructor (orientation) {
+        /**
+         * It would be nice to make this class not directly creatable, but only through Map, but it's a bit complicated without module
+         * @param {string} orientation
+         * @param {int} x
+         * @param {int} y
+         * @param {Map} map
+         */
+        constructor (orientation, x, y, map) {
             this.orientation = orientation
-            this.map = null
-            this.x = null
-            this.y = null
-        }
-
-        setPosition (x, y, map) {
+            this.scented = false
+            this.map = map
             this.x = x
             this.y = y
-            this.map = map
+        }
+
+        turn (turns) {
+            let index = DIRECTIONS.indexOf(this.orientation)
+            index = (index + turns) % 4
+            if (index < 0) {
+                index = 4 + index
+            }
+            this.orientation = DIRECTIONS[index]
+        }
+
+        left () {
+            this.turn(-1)
+            return true
+        }
+
+        right () {
+            this.turn(1)
+            return true
+        }
+
+        forward () {
+            let { x, y } = this
+            switch (this.orientation) {
+                case 'N':
+                    y++
+                    break
+                case 'E':
+                    x++
+                    break
+                case 'S':
+                    y--
+                    break
+                case 'W':
+                    x--
+                    break
+            }
+            if (this.map.onMap(x, y)) {
+                this.x = x
+                this.y = y
+                return false
+            }
+            this.scented = true;
+            return false
         }
 
         applyCommands (commands) {
-
+            commands = commands.split('')
+            while (commands.length > 0) {
+                const command = commands.shift()
+                switch (command) {
+                    case 'F':
+                        this.forward()
+                        break
+                    case 'L':
+                        this.left()
+                        break
+                    case 'R':
+                        this.right()
+                        break
+                }
+            }
         }
     }
 
