@@ -1,6 +1,6 @@
 # Hello
 
-To run the code you can either git pull or just go to :TODO
+To run the code you can either git pull or just go to https://blue-mongoose.vercel.app/
 
 System is using decentralised compute engine called Google Chrome :) 
 
