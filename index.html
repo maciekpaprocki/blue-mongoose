@@ -6,13 +6,63 @@
     <title></title>
     <meta name="description" content="">
 
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
+        :root {
+            --primary: #007bff;
+            --danger: #dc3545;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        textarea {
+            background: transparent;
+            display: block;
+            color: inherit;
+            width: 100%;
+        }
+
+        textarea:focus {
+            outline: none;
+        }
+
+        h1, h2, h3, h4, h5, label, p {
+            padding: 0;
+            margin: 0;
+            display: block;
+            font-weight: normal;
+        }
+        /* I am basically doing tailwind bastardisation to not include tailwind. Sorry :) */
+        .p {
+            padding: 1rem;
+        }
+
+        .upper {
+            text-transform: uppercase;
+        }
+
+        .mb {
+            margin-bottom: 1rem;
+        }
+
+
+    </style>
 </head>
 
 <body>
-
-<!-- Add your site or application content here -->
-
+<h1 class="p mb upper">Green Weasel Test*</h1>
+<div class="p">
+    *I know you are not called green weasel, just didn't want to burn the test by indexing it in google :) <br>
+    Also, I am making assumption that two robots can be at this same position, otherwise i would have to add some pile
+    up<br>
+</div>
 
 </body>
 
