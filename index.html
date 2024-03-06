@@ -126,27 +126,82 @@
     })
 
     class Map {
+        /**
+         * @param {int} width
+         * @param {int} height
+         */
         constructor (width, height) {
             this.width = width
             this.height = height
             this.robots = []
         }
-    }
 
-    class Robot {
-        constructor (x, y, orientation) {
-            this.x = x
-            this.y = y
-            this.orientation = orientation
+        /**
+         * @param {Robot} robot
+         * @param {int} x
+         * @param {int} y
+         */
+        addRobot (robot, x, y) {
+            this.robots.push(robot)
+            robot.setPosition(x, y)
+        }
+
+        /**
+         * @param {string} orientation
+         * @param {int} x
+         * @param {int} y
+         */
+        createNewRobot (orientation, x, y) {
+            const robot = new Robot(orientation)
+            this.addRobot(robot, x, y)
         }
     }
 
+    class Robot {
+        constructor (orientation) {
+            this.orientation = orientation
+            this.map = null
+            this.x = null
+            this.y = null
+        }
+
+        setPosition (x, y, map) {
+            this.x = x
+            this.y = y
+            this.map = map
+        }
+    }
+
+    function parseCoordinates (coordinates) {
+        let split = coordinates.split(' ')
+
+        if (split.length < 2) {
+            throw new Error(`Coordinates must be integers separated by space. Got "${coordinates}" instead.`)
+        }
+
+        let x = parseInt(split.shift()), y = parseInt(split.shift())
+
+        if (!Number.isInteger(x) || !Number.isInteger(y)) {
+            throw new Error(`Coordinates must be integers separated by space. Got "${coordinates}" instead.`)
+        }
+
+        if (x < 0 || y < 0) {
+            throw new Error(`Coordinates must be larger than 0. I know, our map is weird. Got "${coordinates}".`)
+        }
+
+        return [x, y]
+    }
+
     /**
-     *
      * @param inputText
      * @returns {string}
      */
     function main (inputText) {
+        const lines = inputText.trim().split(/\r?\n/)
+        const mapSize = lines.shift()
+        const [width, height] = parseCoordinates(mapSize)
+        const map = new Map(width, height)
+        console.log(map)
         return inputText
     }
 
