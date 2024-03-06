@@ -71,6 +71,9 @@
             border: 1px solid var(--primary);
         }
 
+        .border-red {
+            border: 1px solid var(--danger);
+        }
 
         .w-1\/2 {
             width: 50%;
@@ -143,8 +146,8 @@
      * @param inputText
      * @returns {string}
      */
-    function main(inputText){
-        return inputText;
+    function main (inputText) {
+        return inputText
     }
 
     // this stuff is just to run tests for easier development
@@ -165,9 +168,9 @@ LLFFFLFLFL`,
 3 3 N LOST
 2 3 S`
         }
-    ];
+    ]
 
-    TESTS.forEach(function(test, i){
+    TESTS.forEach(function (test, i) {
         let output = ''
         const div = document.createElement('div')
         div.classList.add('cf', 'mb')
@@ -179,9 +182,12 @@ LLFFFLFLFL`,
             console.error(e)
         }
 
+        const valid = output.trim() === test.output.trim()
+        const borderClass = valid ? 'border' : 'border-red'
+
         div.innerHTML = `<h3 class="p">Test ${i + 1}</h3>
-                <div class="p w-1/2 float-left"><pre class="border p">${test.input}</pre></div>
-                <div class="p w-1/2 float-left"><pre class="border p">${output}</pre></div>
+                <div class="p w-1/2 float-left"><pre class="${borderClass} p">${test.input}</pre></div>
+                <div class="p w-1/2 float-left"><pre class="${borderClass} p">${output}</pre></div>
         `
         tests.appendChild(div)
     })
